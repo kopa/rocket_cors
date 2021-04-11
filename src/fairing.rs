@@ -26,7 +26,7 @@ impl rocket::handler::Handler for FairingErrorRoute {
         _: rocket::Data,
     ) -> rocket::handler::Outcome<'r> {
         let status = request
-            .get_param::<u16>(0)
+            .param::<u16>(0)
             .unwrap_or(Ok(0))
             .unwrap_or_else(|e| {
                 error_!("Fairing Error Handling Route error: {:?}", e);
@@ -110,7 +110,7 @@ impl rocket::fairing::Fairing for Cors {
 
     async fn on_attach(&self, rocket: rocket::Rocket) -> Result<rocket::Rocket, rocket::Rocket> {
         Ok(rocket.mount(
-            &self.fairing_route_base,
+            self.fairing_route_base.clone(),
             vec![fairing_route(self.fairing_route_rank)],
         ))
     }
