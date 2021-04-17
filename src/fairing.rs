@@ -2,7 +2,7 @@
 
 use ::log::{error, info};
 use rocket::http::{self, uri::Origin, Status};
-use rocket::{self, error_, info_, log_, outcome::Outcome, Request};
+use rocket::{self, error_, info_, log_, Build, outcome::Outcome, Request};
 
 use crate::{
     actual_request_response, origin, preflight_response, request_headers, validate, Cors, Error,
@@ -19,12 +19,12 @@ enum CorsValidation {
 struct FairingErrorRoute {}
 
 #[rocket::async_trait]
-impl rocket::handler::Handler for FairingErrorRoute {
-    async fn handle<'r, 's: 'r>(
-        &'s self,
+impl rocket::route::Handler for FairingErrorRoute {
+    async fn handle<'r>(
+        &self,
         request: &'r Request<'_>,
         _: rocket::Data,
-    ) -> rocket::handler::Outcome<'r> {
+    ) -> rocket::route::Outcome<'r> {
         let status = request
             .param::<u16>(0)
             .unwrap_or(Ok(0))
@@ -102,13 +102,13 @@ impl rocket::fairing::Fairing for Cors {
     fn info(&self) -> rocket::fairing::Info {
         rocket::fairing::Info {
             name: "CORS",
-            kind: rocket::fairing::Kind::Attach
+            kind: rocket::fairing::Kind::Ignite
                 | rocket::fairing::Kind::Request
                 | rocket::fairing::Kind::Response,
         }
     }
 
-    async fn on_attach(&self, rocket: rocket::Rocket) -> Result<rocket::Rocket, rocket::Rocket> {
+    async fn on_ignite(&self, rocket: rocket::Rocket<Build>) -> Result<rocket::Rocket<Build>, rocket::Rocket<Build>> {
         Ok(rocket.mount(
             self.fairing_route_base.clone(),
             vec![fairing_route(self.fairing_route_rank)],

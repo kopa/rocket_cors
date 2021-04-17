@@ -2009,15 +2009,15 @@ pub fn catch_all_options_routes() -> Vec<rocket::Route> {
 struct CatchAllOptionsRouteHandler {}
 
 #[rocket::async_trait]
-impl rocket::handler::Handler for CatchAllOptionsRouteHandler {
-    async fn handle<'r, 's: 'r>(
-        &'s self,
+impl rocket::route::Handler for CatchAllOptionsRouteHandler {
+    async fn handle<'r>(
+        &self,
         request: &'r Request<'_>,
         _: rocket::Data,
-    ) -> rocket::handler::Outcome<'r> {
+    ) -> rocket::route::Outcome<'r> {
         let guard: Guard<'_> = match request.guard().await {
             Outcome::Success(guard) => guard,
-            Outcome::Failure((status, _)) => return rocket::handler::Outcome::failure(status),
+            Outcome::Failure((status, _)) => return rocket::route::Outcome::failure(status),
             Outcome::Forward(()) => unreachable!("Should not be reachable"),
         };
 
@@ -2026,7 +2026,7 @@ impl rocket::handler::Handler for CatchAllOptionsRouteHandler {
             request
         );
 
-        rocket::handler::Outcome::from(request, guard.responder(()))
+        rocket::route::Outcome::from(request, guard.responder(()))
     }
 }
 
