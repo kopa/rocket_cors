@@ -3,7 +3,7 @@
 #[allow(unused_imports)]
 use ::log::{error, info};
 use rocket::http::{self, uri::Origin, Status};
-use rocket::{self, error_, info_, outcome::Outcome, Request};
+use rocket::{self, error_, info_, log_, Build, outcome::Outcome, Request};
 
 use crate::{
     actual_request_response, origin, preflight_response, request_headers, validate, Cors, Error,
@@ -109,9 +109,9 @@ impl rocket::fairing::Fairing for Cors {
         }
     }
 
-    async fn on_ignite(&self, rocket: rocket::Rocket<rocket::Build>) -> rocket::fairing::Result {
+    async fn on_ignite(&self, rocket: rocket::Rocket<Build>) -> Result<rocket::Rocket<Build>, rocket::Rocket<Build>> {
         Ok(rocket.mount(
-            &self.fairing_route_base,
+            self.fairing_route_base.clone(),
             vec![fairing_route(self.fairing_route_rank)],
         ))
     }
