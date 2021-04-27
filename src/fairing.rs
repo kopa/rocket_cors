@@ -3,7 +3,7 @@
 #[allow(unused_imports)]
 use ::log::{error, info};
 use rocket::http::{self, uri::Origin, Status};
-use rocket::{self, error_, info_, log_, Build, outcome::Outcome, Request};
+use rocket::{self, error_, info_, Build, outcome::Outcome, Request};
 
 use crate::{
     actual_request_response, origin, preflight_response, request_headers, validate, Cors, Error,
